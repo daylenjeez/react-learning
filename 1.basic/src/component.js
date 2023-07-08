@@ -1,4 +1,16 @@
 import { findDom, compareTwoVDom } from "./react-dom";
+export let updateQueue = {
+  isBathingUpdate: false,
+  updaters: new Set(),
+  batchUpdate() {
+    updateQueue.isBathingUpdate = false;
+    for (let updater of updateQueue.updaters) {
+      updater.updateComponent();
+    }
+    updateQueue.updaters.clear();
+  },
+};
+
 class Updater {
   constructor(classInstance) {
     this.classInstance = classInstance;
@@ -12,7 +24,11 @@ class Updater {
   }
 
   emitUpdate() {
-    this.updateComponent();
+    if (updateQueue.isBathingUpdate) {
+      updateQueue.updaters.add(this);
+    } else {
+      this.updateComponent();
+    }
   }
 
   updateComponent() {

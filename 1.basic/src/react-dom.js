@@ -1,4 +1,5 @@
 import { REACT_ELEMENT, REACT_TEXT } from "./constants";
+import { addEvent } from "./event";
 
 const updateProps = (props, dom) => {
   Object.entries(props).forEach(([key, value]) => {
@@ -9,7 +10,8 @@ const updateProps = (props, dom) => {
       });
     } else {
       if (/^on.*[A-Z]/.test(key)) {
-        dom[key.toLowerCase(key)] = value;
+        // dom[key.toLowerCase(key)] = value;
+        addEvent(dom, key.toLowerCase(), value);
       }
       dom[key] = value;
     }
