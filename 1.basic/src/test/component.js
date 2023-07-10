@@ -1,11 +1,12 @@
-import { findDom, compareTwoVDom } from "./react-dom";
+import { findDOM, compareTwoDom } from "./react-dom";
+
 export let updateQueue = {
   isBathingUpdate: false,
   updaters: new Set(),
   batchUpdate() {
     updateQueue.isBathingUpdate = false;
-    for (let updater of updateQueue.updaters) {
-      updater.updateComponent();
+    for (const update in updateQueue.updaters) {
+      update.updateComponent();
     }
     updateQueue.updaters.clear();
   },
@@ -18,13 +19,12 @@ class Updater {
     this.pendingStates = [];
   }
 
-  addState(partialState) {
-    this.pendingStates.push(partialState);
+  addState(partialStates) {
+    this.pendingStates.push(partialStates);
     this.emitUpdate();
   }
 
   emitUpdate() {
-    console.log(updateQueue.isBathingUpdate);
     if (updateQueue.isBathingUpdate) {
       updateQueue.updaters.add(this);
     } else {
@@ -35,7 +35,7 @@ class Updater {
   updateComponent() {
     const { classInstance, pendingStates } = this;
     if (pendingStates.length) {
-      this.shouldUpdate(classInstance, this.getStates());
+      this.shouldUpdate(classInstance, this.getState());
     }
   }
 
@@ -44,7 +44,7 @@ class Updater {
     classInstance.forceUpdate();
   }
 
-  getStates() {
+  getState() {
     const { classInstance, pendingStates } = this;
     let { state } = classInstance;
     pendingStates.forEach((nextState) => (state = { ...state, ...nextState }));
@@ -61,16 +61,15 @@ export class Component {
     this.updater = new Updater(this);
   }
 
-  setState(partialState) {
-    this.updater.addState(partialState);
+  setState(partialStates) {
+    this.updater.addState(partialStates);
   }
 
   forceUpdate() {
     const oldRenderVDom = this.oldRenderVDom;
-    const oldDom = findDom(oldRenderVDom);
+    const oldDom = findDOM(oldRenderVDom);
     const newRenderVDom = this.render();
-
-    compareTwoVDom(oldDom.parentNode, oldRenderVDom, newRenderVDom);
+    compareTwoDom(oldDom.parentNode, oldRenderVDom, newRenderVDom);
     this.oldRenderVDom = newRenderVDom;
   }
 }

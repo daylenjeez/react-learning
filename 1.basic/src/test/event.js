@@ -1,15 +1,15 @@
 import { updateQueue } from "./component";
 
 export const addEvent = (dom, eventType, handler) => {
-  let store = dom.store || (dom.store = {});
-  store[eventType] = handler; //store.onclick = handler
+  const store = dom.store || (dom.store = {});
+  store[eventType] = handler;
   if (!document[eventType]) document[eventType] = dispatchEvent;
 };
 
 function dispatchEvent(event) {
-  updateQueue.isBathingUpdate = true; //事件执行前，标记为true
-  let { target, type } = event;
-  let eventType = `on${type}`;
+  updateQueue.isBathingUpdate = true;
+  const { target, type } = event;
+  const eventType = `on${type}`;
 
   let currentTarget = target;
   while (currentTarget) {
@@ -17,10 +17,9 @@ function dispatchEvent(event) {
     const handler = store?.[eventType];
     const syntheticEvent = createSyntheticEvent(event);
     handler?.(syntheticEvent);
-    if (syntheticEvent.isPropagationStopped) break;
+    if (syntheticEvent.isPropagationStop) break;
     currentTarget = currentTarget.parentNode;
   }
-
   updateQueue.batchUpdate();
 }
 
@@ -31,16 +30,17 @@ function createSyntheticEvent(nativeEvent) {
     if (typeof value === "function") value = value.bind(nativeEvent);
     syntheticEvent[key] = value;
   }
+
   syntheticEvent.nativeEvent = nativeEvent;
-  syntheticEvent.isDefaultPrevented = false;
+  syntheticEvent.isPreventEvent = false;
   syntheticEvent.preventDefault = preventDefault;
-  syntheticEvent.isPropagationStopped = false;
+  syntheticEvent.isPropagationStop = false;
   syntheticEvent.stopPropagation = stopPropagation;
   return syntheticEvent;
 }
 
 function preventDefault() {
-  this.isDefaultPrevented = true;
+  this.isPreventEvent = true;
   const event = this.nativeEvent;
   if (event.preventDefault) {
     event.preventDefault();
@@ -50,7 +50,7 @@ function preventDefault() {
 }
 
 function stopPropagation() {
-  this.isPropagationStopped = true;
+  this.isPropagationStop = true;
   const event = this.nativeEvent;
   if (event.stopPropagation) {
     event.stopPropagation();

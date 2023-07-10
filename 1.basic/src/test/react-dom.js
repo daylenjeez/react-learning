@@ -1,31 +1,21 @@
-import { REACT_ELEMENT, REACT_TEXT } from "./constants";
+import { REACT_ELEMENT } from "./constant";
+import { REACT_TEXT } from "./constant";
 import { addEvent } from "./event";
 
 const updateProps = (props, dom) => {
   Object.entries(props).forEach(([key, value]) => {
     if (key === "children") return;
     if (key === "style") {
-      Object.entries(value).forEach(([_key, _value]) => {
-        dom.style[_key] = _value;
-      });
+      Object.entries(([_key, _value]) => (dom.style[_key] = _value));
     } else {
       if (/^on.*[A-Z]/.test(key)) {
-        // dom[key.toLowerCase(key)] = value;
         addEvent(dom, key.toLowerCase(), value);
+        // dom[key.toLowerCase()] = value;
+      } else {
+        dom[key] = value;
       }
-      dom[key] = value;
     }
   });
-};
-
-const mountClassComponent = (vDom) => {
-  const { type, props } = vDom;
-  const classInstance = new type(props);
-  vDom.classInstance = classInstance;
-  const renderVDom = classInstance.render();
-  vDom.oldRenderVDom = classInstance.oldRenderVDom = renderVDom;
-
-  return createDom(renderVDom);
 };
 
 const mountFunctionComponent = (vDom) => {
@@ -35,8 +25,16 @@ const mountFunctionComponent = (vDom) => {
   return createDom(renderVDom);
 };
 
+const mountClassComponent = (vDom) => {
+  const { type, props } = vDom;
+  const classInstance = new type(props);
+  vDom.classInstance = classInstance;
+  const renderVDom = classInstance.render();
+  vDom.oldRenderVDom = classInstance.oldRenderVDom = renderVDom;
+  return createDom(renderVDom);
+};
+
 const mount = (vDom, container) => {
-  if (!vDom) return;
   const dom = createDom(vDom);
   container.appendChild(dom);
 };
@@ -48,6 +46,7 @@ const reconcileChildren = (children, dom) => {
 const createDom = (vDom) => {
   const { type, $$typeof, props } = vDom;
   let dom;
+
   if (type === REACT_TEXT) {
     dom = document.createTextNode(props);
   } else if (typeof type === "function") {
@@ -59,16 +58,15 @@ const createDom = (vDom) => {
   }
 
   if (props) {
+    const { children } = props;
     updateProps(props, dom);
 
-    if (props.children?.type) {
-      mount(props.children, dom);
-    } else if (Array.isArray(props.children)) {
-      reconcileChildren(props.children, dom);
+    if (children?.type) {
+      mount(children, dom);
+    } else if (Array.isArray(children)) {
+      reconcileChildren(children, dom);
     }
   }
-
-  console.log(dom);
 
   vDom.dom = dom;
   return dom;
@@ -78,23 +76,21 @@ const render = (vDom, container) => {
   mount(vDom, container);
 };
 
-const ReactDOM = {
+const ReactDom = {
   render,
 };
 
-export const findDom = (vDom) => {
-  if (!vDom) return null;
+export const findDOM = (vDom) => {
+  if (!vDom) return;
   if (vDom.dom) return vDom.dom;
-  const renderVDom = vDom.classInstance
+  return vDom.classInstance
     ? vDom.classInstance.oldRenderVDom
     : vDom.oldRenderVDom;
-  return createDom(renderVDom);
 };
-
-export const compareTwoVDom = (parentNode, oldVDom, newVDom) => {
-  const oldDom = findDom(oldVDom);
+export const compareTwoDom = (parentNode, oldVDom, newVDom) => {
+  const oldDom = findDOM(oldVDom);
   const newDom = createDom(newVDom);
   parentNode.replaceChild(newDom, oldDom);
 };
 
-export default ReactDOM;
+export default ReactDom;
