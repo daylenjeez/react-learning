@@ -1,4 +1,4 @@
-import { REACT_ELEMENT, REACT_TEXT } from "./constants";
+import { REACT_ELEMENT, REACT_FORWARD_REF, REACT_TEXT } from "./constants";
 import { addEvent } from "./event";
 
 const updateProps = (props, dom) => {
@@ -19,9 +19,10 @@ const updateProps = (props, dom) => {
 };
 
 const mountClassComponent = (vDom) => {
-  const { type, props } = vDom;
+  const { type, props, ref } = vDom;
   const classInstance = new type(props);
   vDom.classInstance = classInstance;
+  if (ref) ref.current = classInstance;
   const renderVDom = classInstance.render();
   vDom.oldRenderVDom = classInstance.oldRenderVDom = renderVDom;
 
@@ -31,6 +32,15 @@ const mountClassComponent = (vDom) => {
 const mountFunctionComponent = (vDom) => {
   const { type, props } = vDom;
   const renderVDom = type(props);
+  vDom.oldRenderVDom = renderVDom;
+  return createDom(renderVDom);
+};
+
+const mountForwardComponent = (vDom) => {
+  console.log(vDom);
+  const { type, props, ref } = vDom;
+  console.log(type);
+  const renderVDom = type.render(props, ref);
   vDom.oldRenderVDom = renderVDom;
   return createDom(renderVDom);
 };
@@ -46,9 +56,11 @@ const reconcileChildren = (children, dom) => {
 };
 
 const createDom = (vDom) => {
-  const { type, $$typeof, props } = vDom;
+  const { type, $$typeof, props, ref } = vDom;
   let dom;
-  if (type === REACT_TEXT) {
+  if (type?.$$typeof === REACT_FORWARD_REF) {
+    return mountForwardComponent(vDom);
+  } else if (type === REACT_TEXT) {
     dom = document.createTextNode(props);
   } else if (typeof type === "function") {
     return type.isReactComponent
@@ -71,6 +83,9 @@ const createDom = (vDom) => {
   console.log(dom);
 
   vDom.dom = dom;
+  if (ref) {
+    ref.current = dom;
+  }
   return dom;
 };
 

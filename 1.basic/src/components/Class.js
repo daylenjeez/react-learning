@@ -1,4 +1,4 @@
-import React from "../test/react";
+import React from "./react";
 
 export class ClassComponent extends React.Component {
   constructor(props) {
