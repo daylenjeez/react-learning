@@ -1,5 +1,5 @@
-import { REACT_ELEMENT, REACT_FORWARD_REF } from "./constants";
-import { wrapVDom } from "./utils";
+import { REACT_ELEMENT, REACT_FORWARD_REF } from "../constants";
+import { wrapVDom } from "../utils";
 import { Component } from "./component";
 
 function createElement(type, config, children) {

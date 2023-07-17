@@ -1,9 +1,9 @@
-import { REACT_ELEMENT } from "./constant";
+import { REACT_ELEMENT } from "./constants";
 import { wrapVDom } from "./utils";
 import { Component } from "./component";
 
 function createElement(type, config, children) {
-  const { __self, __source, self, key, ...props } = config;
+  const { __source, __self, ref, key, ...props } = config;
 
   if (arguments.length > 3) {
     props.children = Array.prototype.slice.call(arguments, 2).map(wrapVDom);
@@ -15,14 +15,8 @@ function createElement(type, config, children) {
     $$typeof: REACT_ELEMENT,
     type,
     props,
-    self,
     key,
+    ref,
   };
 }
-
-const React = {
-  createElement,
-  Component,
-};
-
-export default React;
+export default { createElement, Component };

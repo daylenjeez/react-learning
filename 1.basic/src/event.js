@@ -1,4 +1,4 @@
-import { updateQueue } from "./component";
+import { updateQueue } from "./react/component";
 
 export const addEvent = (dom, eventType, handler) => {
   let store = dom.store || (dom.store = {});

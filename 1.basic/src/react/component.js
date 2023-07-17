@@ -1,4 +1,4 @@
-import { findDom, compareTwoVDom } from "./react-dom";
+import { findDom, compareTwoVDom } from "../react-dom";
 export let updateQueue = {
   isBathingUpdate: false,
   updaters: new Set(),
@@ -24,7 +24,6 @@ class Updater {
   }
 
   emitUpdate() {
-    console.log(updateQueue.isBathingUpdate);
     if (updateQueue.isBathingUpdate) {
       updateQueue.updaters.add(this);
     } else {

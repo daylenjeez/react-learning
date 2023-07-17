@@ -1,31 +1,30 @@
-import { findDOM, compareTwoDom } from "./react-dom";
-
-export let updateQueue = {
-  isBathingUpdate: false,
+import { findDom, compareTwoVDom } from "../_test/react-dom";
+export const updateQueue = {
+  isBatchingUpdate: false,
   updaters: new Set(),
-  batchUpdate() {
-    updateQueue.isBathingUpdate = false;
-    for (const update in updateQueue.updaters) {
+  batchUpdate: () => {
+    updateQueue.isBatchingUpdate = false;
+    for (let update of updateQueue.updaters) {
       update.updateComponent();
     }
     updateQueue.updaters.clear();
   },
 };
 
-class Updater {
+export class Updater {
   constructor(classInstance) {
     this.classInstance = classInstance;
 
     this.pendingStates = [];
   }
 
-  addState(partialStates) {
-    this.pendingStates.push(partialStates);
+  addState(partialState) {
+    this.pendingStates.push(partialState);
     this.emitUpdate();
   }
 
   emitUpdate() {
-    if (updateQueue.isBathingUpdate) {
+    if (updateQueue.isBatchingUpdate) {
       updateQueue.updaters.add(this);
     } else {
       this.updateComponent();
@@ -33,9 +32,10 @@ class Updater {
   }
 
   updateComponent() {
-    const { classInstance, pendingStates } = this;
-    if (pendingStates.length) {
-      this.shouldUpdate(classInstance, this.getState());
+    console.log("update");
+    if (this.pendingStates.length) {
+      const { classInstance } = this;
+      this.shouldUpdate(classInstance, this.getValues());
     }
   }
 
@@ -44,7 +44,7 @@ class Updater {
     classInstance.forceUpdate();
   }
 
-  getState() {
+  getValues() {
     const { classInstance, pendingStates } = this;
     let { state } = classInstance;
     pendingStates.forEach((nextState) => (state = { ...state, ...nextState }));
@@ -54,22 +54,24 @@ class Updater {
 
 export class Component {
   static isReactComponent = true;
+
   constructor(props) {
     this.props = props;
-    this.state = {};
-
     this.updater = new Updater(this);
+
+    this.state = {};
   }
 
-  setState(partialStates) {
-    this.updater.addState(partialStates);
+  setState(partialState) {
+    this.updater.addState(partialState);
   }
 
   forceUpdate() {
-    const oldRenderVDom = this.oldRenderVDom;
-    const oldDom = findDOM(oldRenderVDom);
+    const dom = findDom(this.oldRenderVDom);
+    const parentNode = dom.parentNode;
     const newRenderVDom = this.render();
-    compareTwoDom(oldDom.parentNode, oldRenderVDom, newRenderVDom);
+    compareTwoVDom(parentNode, this.oldRenderVDom, newRenderVDom);
+
     this.oldRenderVDom = newRenderVDom;
   }
 }
