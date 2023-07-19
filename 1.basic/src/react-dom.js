@@ -37,9 +37,7 @@ const mountFunctionComponent = (vDom) => {
 };
 
 const mountForwardComponent = (vDom) => {
-  console.log(vDom);
   const { type, props, ref } = vDom;
-  console.log(type);
   const renderVDom = type.render(props, ref);
   vDom.oldRenderVDom = renderVDom;
   return createDom(renderVDom);
@@ -79,8 +77,6 @@ const createDom = (vDom) => {
       reconcileChildren(props.children, dom);
     }
   }
-
-  console.log(dom);
 
   vDom.dom = dom;
   if (ref) {

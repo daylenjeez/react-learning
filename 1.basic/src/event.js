@@ -1,7 +1,7 @@
 import { updateQueue } from "./react/component";
 
 export const addEvent = (dom, eventType, handler) => {
-  let store = dom.store || (dom.store = {});
+  const store = dom.store || (dom.store = {});
   store[eventType] = handler; //store.onclick = handler
   if (!document[eventType]) document[eventType] = dispatchEvent;
 };
@@ -12,6 +12,7 @@ function dispatchEvent(event) {
   let eventType = `on${type}`;
 
   let currentTarget = target;
+
   while (currentTarget) {
     const { store } = currentTarget;
     const handler = store?.[eventType];

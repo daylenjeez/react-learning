@@ -7,7 +7,7 @@ export default class ClassComponent extends React.Component {
   }
 
   click = (event) => {
-    // event.stopPropagation();
+    event.stopPropagation();
     this.setState({ number: this.state.number + 1 });
     console.log(this.state.number);
     this.setState({ number: this.state.number + 1 });
