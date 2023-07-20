@@ -1,9 +1,26 @@
-import React from "../_test/react";
+import React from "react";
 
 export default class ClassComponent extends React.Component {
   constructor(props) {
     super(props);
+    console.log("constructor");
     this.state = { number: 0 };
+  }
+
+  componentDidMount() {
+    console.log("did mount");
+  }
+
+  componentWillMount() {
+    console.log(1, "mount");
+  }
+
+  componentWillReceiveProps() {
+    console.log("receive");
+  }
+
+  componentWillUnmount() {
+    console.log("unmount");
   }
 
   click = (event) => {
@@ -28,6 +45,7 @@ export default class ClassComponent extends React.Component {
   }
 
   render() {
+    console.log("render");
     return (
       <div onClick={() => this.clickDiv()}>
         {this.state.number}

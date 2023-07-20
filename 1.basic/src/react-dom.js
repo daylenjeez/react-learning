@@ -23,10 +23,12 @@ const mountClassComponent = (vDom) => {
   const classInstance = new type(props);
   vDom.classInstance = classInstance;
   if (ref) ref.current = classInstance;
+  classInstance.componentWillMount?.();
   const renderVDom = classInstance.render();
   vDom.oldRenderVDom = classInstance.oldRenderVDom = renderVDom;
-
-  return createDom(renderVDom);
+  const dom = createDom(renderVDom);
+  classInstance.componentDidMount?.();
+  return dom;
 };
 
 const mountFunctionComponent = (vDom) => {
