@@ -1,5 +1,5 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from "./react";
+import ReactDOM from "./react-dom";
 // import TestJsx from "./components/testJsx";
 // import TestFunction from "./components/testFunction";
 // import TestEvent from "./components/testEvent";
